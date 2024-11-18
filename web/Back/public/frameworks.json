@@ -1,0 +1,9 @@
+{
+  "projectName": "ouma",
+  "technology": "angular",
+  "database": "MySQL",
+  "databaseHost": "localhost",
+  "databaseUsername": "phpmyadmin",
+  "databasePassword": "oumayma",
+  "databaseName": "db_teams"
+}

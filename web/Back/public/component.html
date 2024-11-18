@@ -1,0 +1,62 @@
+<main class="table" id="customers_table">
+    <section class="table__header">
+      <h1>{{nameComponentMaj}}</h1>
+      <div class="input-group">
+  
+        <input type="search" placeholder="Search Data...">
+        <img src="../../images/search.png" alt="">
+  
+      </div>
+  
+  
+      <div class="crud__item">
+        <label class="item-btn add__item-btn" title="Add new" (click)="onAdd()"></label>
+      </div>
+  
+    </section>
+    <section class="table__body">
+      <table>
+        <thead>
+          <tr>
+            <th *ngFor="let key of attributeNames"> {{key}} <span class="icon-arrow">&UpArrow;</span></th>
+            <th></th>
+  
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let item of items; let i = index">
+            <td *ngFor="let key of attributeNames">
+              <div class="form__group" *ngIf="item.isEdit">
+                <input class="form__input" type="text" [(ngModel)]="item[key]">
+              </div>
+              <div *ngIf="!item.isEdit">
+                {{ item[key] }}
+              </div>
+  
+            </td>
+  
+            <td>
+  
+              <div class="action" *ngIf="!item.isEdit">
+                <div class="crud__item">
+                  <label class="item-btn edit__item-btn" (click)="editItem(item)"></label>
+                </div>
+                <div class="crud__item">
+                  <label class="item-btn delete__item-btn" (click)="deleteItem(item.idTeam)"></label>
+                </div>
+              </div>
+              <div class="action" *ngIf="item.isEdit" >
+                <div class="crud__item">
+                  <label class="item-btn save__item-btn" (click)="updateItem(item)"></label>
+                </div>
+                <div class="crud__item">
+                  <label class="item-btn cancel__item-btn" (click)="onCancel(item)"></label>
+                </div>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+  </main>
+  <script src="assets/script.js"></script>

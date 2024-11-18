@@ -1,0 +1,77 @@
+var dbConn = require('../db/dbConnection');
+
+// Get all records
+exports.getAll${capitalizeFirstLetter(name)}s = (req, res) => {
+    dbConn.query('SELECT * FROM ${name}', function (err, rows) {
+        if (err) {
+            console.error(err);
+            return res.status(500).json({ error: "Failed to fetch ${name}s." });
+        }
+        return res.status(200).json(rows);
+    });
+};
+
+// Add a new record (exclude id)
+exports.create${capitalizeFirstLetter(name)} = (req, res) => {
+    let { ${fieldNames} } = req.body;
+
+    ${validation}
+
+    var form_data = { ${fieldNames} };
+
+    dbConn.query('INSERT INTO ${name} (${fieldNames}) VALUES (${fieldPlaceholders})', [${fieldNames}], function (err, result) {
+        if (err) {
+            console.error(err);
+            return res.status(500).json({ error: "Failed to create ${name}." });
+        }
+        return res.status(201).json({ id: result.insertId, ...form_data });
+    });
+};
+
+// Get record by id
+exports.get${capitalizeFirstLetter(name)}ById = (req, res) => {
+    let id = req.params.id;
+
+    dbConn.query('SELECT * FROM ${name} WHERE id = ?', [id], function (err, rows) {
+        if (err) {
+            console.error(err);
+            return res.status(500).json({ error: "Failed to retrieve ${name}." });
+        }
+
+        if (rows.length <= 0) {
+            return res.status(404).json({ error: "${capitalizeFirstLetter(name)} not found." });
+        }
+        return res.status(200).json(rows[0]);
+    });
+};
+
+// Update record by id (exclude id)
+exports.update${capitalizeFirstLetter(name)} = (req, res) => {
+    let idParams = req.params.id;
+    let { ${fieldNames} } = req.body;
+
+    ${validation}
+
+    var form_data = { idParams, ${fieldNames} };
+
+    dbConn.query('UPDATE ${name} SET ${updateFields} WHERE id = ?', [${fieldNames}, idParams], function (err, result) {
+        if (err) {
+            console.error(err);
+            return res.status(500).json({ error: "Failed to update ${name}." });
+        }
+        return res.status(200).json(form_data);
+    });
+};
+
+// Delete record by id
+exports.delete${capitalizeFirstLetter(name)} = (req, res) => {
+    let id = req.params.id;
+
+    dbConn.query('DELETE FROM ${name} WHERE id = ?', [id], function (err, result) {
+        if (err) {
+            console.error(err);
+            return res.status(500).json({ error: "Failed to delete ${name}." });
+        }
+        return res.status(200).json({ message: "${capitalizeFirstLetter(name)} successfully deleted! ID = " + id });
+    });
+};

@@ -1,0 +1,13 @@
+.custom-toast {
+  font-family: inherit;
+  font-size: 18px; 
+}
+
+.custom-toast-progress {
+  background-color: black !important;
+}
+
+.Toastify__toast-icon svg {
+  fill: black;
+}
+

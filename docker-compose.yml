@@ -1,0 +1,35 @@
+version: '3.8'
+
+services:
+  mysql:
+    image: mysql:latest
+    container_name: mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: oumayma
+    ports:
+      - "3307:3306" 
+    volumes:
+      - mysql-data:/var/lib/mysql
+
+  postgres:
+    image: postgres:latest
+    container_name: postgres
+    environment:
+      POSTGRES_PASSWORD: oumayma
+    ports:
+      - "5433:5432"  
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+
+  mongo:
+    image: mongo:latest
+    container_name: mongo
+    ports:
+      - "27018:27017"  
+    volumes:
+      - mongo-data:/data/db
+
+volumes:
+  mysql-data:
+  postgres-data:
+  mongo-data:
