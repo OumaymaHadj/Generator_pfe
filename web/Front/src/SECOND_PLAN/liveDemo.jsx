@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from "react";
-import ReactDOM from 'react-dom';
+import ReactDOM from 'react-dom/client';
 import axios from "axios";
 import Loader from "../common/loader";
 import { Modal } from 'react-bootstrap';
 import "../assets/css/App.css";
+import SimpleSpinner from "../common/simpleSpinner";
 
 
 export default function LiveDemo() {
@@ -11,6 +12,8 @@ export default function LiveDemo() {
     const [loading, setLoading] = useState(false);
     const [videoSrc, setVideoSrc] = useState("");
     const [showModal, setShowModal] = useState(false);
+    const [showErrorModal, setShowErrorModal] = useState(false);
+    const [error, setError] = useState("");
 
     const getQueryParams = () => {
         const params = new URLSearchParams(window.location.search);
@@ -51,17 +54,6 @@ export default function LiveDemo() {
 
         const demoWindow = window.open('', '_blank');
 
-        // Create a simple loader element in the new window
-        /*demoWindow.document.write(`
-          <html>
-          <head><title>Loading Live Demo</title></head>
-          <body style="display: flex; justify-content: center; align-items: center; height: 100vh;">
-            <div id="loader"></div>
-          </body>
-          </html>
-        `);*/
-
-
         demoWindow.document.write(`
         <html>
         <head>
@@ -77,20 +69,12 @@ export default function LiveDemo() {
         </html>
         `);
 
-        // Show the loader in the new window
-        //const loaderDiv = demoWindow.document.getElementById('loader');
-        //loaderDiv.innerHTML = '<div>Loading...</div>';
-
-        demoWindow.onload = () => {
-            // Delay to ensure everything is initialized in demoWindow
-            setTimeout(() => {
-                const loaderDiv = demoWindow.document.getElementById('loader');
-                if (loaderDiv) {
-                    // Render Loader component into the new window's div
-                    ReactDOM.createRoot(loaderDiv).render(<Loader loading={true} />);
-                }
-            }, 100); // Adjust delay as necessary
-        };
+        setTimeout(() => {
+            const loaderDiv = demoWindow.document.getElementById('loader');
+            if (loaderDiv) {
+                ReactDOM.createRoot(loaderDiv).render(<SimpleSpinner />);
+            }
+        }, 100);
 
         try {
             setLoading(true);
@@ -105,8 +89,7 @@ export default function LiveDemo() {
                 let link;
                 switch (techFront) {
                     case 'Angular':
-                        console.log(queryParams.selectedTables[0]);
-                        link = selectedTables.length === 1 ? `http://localhost:4200/${projectKey}/${queryParams.selectedTables}` : `http://localhost:4200/${projectKey}/${queryParams.selectedTables.split(',')[0]}`;
+                        link = !selectedTables ? `http://localhost:4200/${projectKey}` : selectedTables.length === 1 ? `http://localhost:4200/${projectKey}/${queryParams.selectedTables}` : `http://localhost:4200/${projectKey}/${queryParams.selectedTables.split(',')[0]}`;
                         console.log(link);
                         break;
                     case 'React':
@@ -119,14 +102,6 @@ export default function LiveDemo() {
                     default:
                         break;
                 }
-                // Replace the loader with the running project by redirecting the window
-                //demoWindow.location.href = link;
-
-
-                // Refresh the page after 10 seconds (5000 milliseconds)
-                /*setTimeout(() => {
-                    demoWindow.location.reload();
-                }, 10000);*/
 
                 // Polling to check if the project is ready
                 const intervalId = setInterval(async () => {
@@ -140,7 +115,7 @@ export default function LiveDemo() {
                         // Continue polling until the project is ready
                         console.log('Project not ready yet, continuing to check...');
                     }
-                }, 2000); // Check every 2 seconds
+                }, 8000); // Check every 8 seconds
             }
         } catch (error) {
             console.error('Error starting live demo:', error);
@@ -188,7 +163,9 @@ export default function LiveDemo() {
             }*/
 
         } catch (err) {
-            //setError('Erreur lors du téléchargement du projet.');
+            setLoading(false)
+            setError('Erreur lors du téléchargement du projet.');
+            setShowErrorModal(true);
             console.error("Erreur lors du téléchargement:", err);
         }
     }
@@ -200,6 +177,8 @@ export default function LiveDemo() {
         };
         fetchVideoSrc();
     }, [techFront]);
+
+    const handleErrorClose = () => setShowErrorModal(false);
 
     if (!videoSrc) {
         return <div>Loading video...</div>; // Show a fallback while loading
@@ -252,7 +231,7 @@ export default function LiveDemo() {
                     </Modal.Title>
                 </Modal.Header>
                 <Modal.Body>
-                    <h3>You need to install Node version <code>20.15.1</code> . Then, navigate into each project folder ({projectName} and {projectName}Back), run <code>npm install</code>, and start the project.</h3>
+                    <h3>You need to install Node version <code>20.x</code> . Then, navigate into each project folder ({projectName} and {projectName}Back), run <code>npm install</code>, and start the project.</h3>
                 </Modal.Body>
                 <Modal.Footer>
                     <div className="btn-recommondation">
@@ -268,6 +247,35 @@ export default function LiveDemo() {
                     </div>
                 </Modal.Footer>
             </Modal>
+
+            <Modal
+            show={showErrorModal}
+            onHide={handleErrorClose}
+            centered
+            size='lg'
+          >
+            <Modal.Header closeButton>
+              <Modal.Title style={{ fontSize: '30px' }}>
+                Error
+              </Modal.Title>
+            </Modal.Header>
+            <Modal.Body>
+              <h3>{error}.</h3>
+            </Modal.Body>
+            <Modal.Footer>
+              <div className="btn-recommondation">
+                <button className="btn btn_cta -sm btn-save" onClick={handleErrorClose}>
+                  <span className="btn_cta-border"></span>
+                  <span className="btn_cta-ripple">
+                    <span></span>
+                  </span>
+                  <span className="btn_cta-title">
+                    <span data-text="Okay">Okay</span>
+                  </span>
+                </button>
+              </div>
+            </Modal.Footer>
+          </Modal>
         </>
     )
 }

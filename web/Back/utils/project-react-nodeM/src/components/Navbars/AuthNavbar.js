@@ -38,9 +38,9 @@ export default function AuthNavbar(props) {
     "drop-shadow(0px 7px 23px rgba(0, 0, 0, 0.05))"
   );
   let navbarBackdrop = "blur(21px)";
-  let bgButton
+  //let bgButton
   let navbarPosition = "fixed";
-  let colorButton;
+  //let colorButton;
   if (secondary === true) {
     navbarIcon = "white";
     navbarBg = "none";
@@ -48,8 +48,8 @@ export default function AuthNavbar(props) {
     navbarShadow = "initial";
     navbarFilter = "initial";
     navbarBackdrop = "none";
-    bgButton = "white";
-    colorButton = "gray.700";
+    // bgButton = "white";
+    // colorButton = "gray.700";
     mainText = "white";
     navbarPosition = "absolute";
   }

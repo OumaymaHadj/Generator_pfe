@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, forwardRef, useImperativeHandle, useEffect } from 'react';
 
-const ProjectForm = ({ handleSubmit, loading }) => {
+const ProjectForm = forwardRef(({ handleSubmit, loading }, ref) => {
 
   const [projectName, setProjectName] = useState('');
   const [techFront, settechFront] = useState('');
@@ -13,6 +13,24 @@ const ProjectForm = ({ handleSubmit, loading }) => {
   const [namedb, setNamedb] = useState('');
   const [isFormValid, setIsFormValid] = useState(false);
 
+  useImperativeHandle(ref, () => ({
+    resetForm,
+  }));
+
+  const resetForm = () => {
+    setProjectName('');
+    settechFront('');
+    settechBack('');
+    setDatabase('');
+    setHost('');
+    setUsername('');
+    setPassword('');
+    setPort('');
+    setNamedb('')
+    setInputErrors({ projectName: false, host: false, port: false });
+  };
+
+  
   const [inputErrors, setInputErrors] = useState({
     projectName: false,
     host: false,
@@ -95,6 +113,7 @@ const ProjectForm = ({ handleSubmit, loading }) => {
                 id="angular"
                 name="frontend"
                 value="Angular"
+                checked={techFront === "Angular"}
                 onChange={(e) => settechFront(e.target.value)}
               />
               <span className="form-checkbox_cta-box">
@@ -116,6 +135,7 @@ const ProjectForm = ({ handleSubmit, loading }) => {
                 id="reactnative"
                 name="frontend"
                 value="React"
+                checked={techFront === "React"}
                 onChange={(e) => settechFront(e.target.value)}
               />
               <span className="form-checkbox_cta-box">
@@ -137,6 +157,7 @@ const ProjectForm = ({ handleSubmit, loading }) => {
                 id="vuejs"
                 name="frontend"
                 value="Vue"
+                checked={techFront === "Vue"}
                 onChange={(e) => settechFront(e.target.value)}
               />
               <span className="form-checkbox_cta-box">
@@ -164,6 +185,7 @@ const ProjectForm = ({ handleSubmit, loading }) => {
                 id="expressjs"
                 name="backend"
                 value="Express"
+                checked={techBack === "Express"}
                 onChange={(e) => settechBack(e.target.value)}
               />
               <span className="form-checkbox_cta-box">
@@ -177,48 +199,6 @@ const ProjectForm = ({ handleSubmit, loading }) => {
               </span>
             </label>
           </div>
-
-         {/* <div className="form-radio-col">
-            <label className="form-checkbox form-checkbox_cta">
-              <input
-                type="radio"
-                id="nest"
-                name="backend"
-                value="Nest"
-                onChange={(e) => settechBack(e.target.value)}
-              />
-              <span className="form-checkbox_cta-box">
-                <span className="form-checkbox_cta-border"></span>
-                <span className="form-checkbox_cta-ripple">
-                  <span></span>
-                </span>
-                <span className="form-checkbox_cta-title">
-                  <span data-text="Nest">Nest.js</span>
-                </span>
-              </span>
-            </label>
-          </div>
-
-          <div className="form-radio-col">
-            <label className="form-checkbox form-checkbox_cta">
-              <input
-                type="radio"
-                id="springboot"
-                name="backend"
-                value="Spring Boot"
-                onChange={(e) => settechBack(e.target.value)}
-              />
-              <span className="form-checkbox_cta-box">
-                <span className="form-checkbox_cta-border"></span>
-                <span className="form-checkbox_cta-ripple">
-                  <span></span>
-                </span>
-                <span className="form-checkbox_cta-title">
-                  <span data-text="Spring boot">Spring boot</span>
-                </span>
-              </span>
-            </label>
-          </div> */}
         </div>
       </div>
 
@@ -233,6 +213,7 @@ const ProjectForm = ({ handleSubmit, loading }) => {
                 id="mysql"
                 name="database"
                 value="mysql"
+                checked={database === "mysql"}
                 onChange={(e) => setDatabase(e.target.value)}
               />
               <span className="form-checkbox_cta-box">
@@ -254,6 +235,7 @@ const ProjectForm = ({ handleSubmit, loading }) => {
                 id="mongodb"
                 name="database"
                 value="mongoDB"
+                checked={database === "mongoDB"}
                 onChange={(e) => setDatabase(e.target.value)}
               />
               <span className="form-checkbox_cta-box">
@@ -275,6 +257,7 @@ const ProjectForm = ({ handleSubmit, loading }) => {
                 id="postgresql"
                 name="database"
                 value="postgres"
+                checked={database === "postgres"}
                 onChange={(e) => setDatabase(e.target.value)}
               />
               <span className="form-checkbox_cta-box">
@@ -414,6 +397,6 @@ const ProjectForm = ({ handleSubmit, loading }) => {
       </div>
     </form>
   )
-}
+})
 
 export default ProjectForm;

@@ -99,7 +99,7 @@ const Overview = () => {
                       Running Commands.
                     </p>
                     <p>
-                      <a  href="https://www.npmjs.com/package/generator-cli-pfe" target="_blank" className="install-link" >
+                      <a  href="https://www.npmjs.com/package/generator-cli-npm" target="_blank" className="install-link" >
                         Install NPM
                       </a>
                     </p>

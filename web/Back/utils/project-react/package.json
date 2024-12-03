@@ -14,7 +14,7 @@
 		"@fontsource/raleway": "^4.5.0",
 		"@fontsource/roboto": "^4.5.8",
 		"ajv": "^8.17.1",
-		"apexcharts": "^3.27.3",
+		"apexcharts": "^4.1.0",
 		"classnames": "2.3.1",
 		"cross-env": "^7.0.3",
 		"framer-motion": "^4.1.17",

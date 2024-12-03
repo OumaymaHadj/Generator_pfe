@@ -1,16 +1,11 @@
 import fs from "fs-extra";
 import path from "path";
 import { showLoading } from "../db/myDB.js";
-import { exec } from "child_process";
-import { promisify } from "util";
-import createProject from "../front/angular/createProject.js"
-
-const execAsync = promisify(exec);
 
 let projectKey;
 export { projectKey };
 
-export async function generateProject(req, res) {
+export async function createProject(req, res) {
   const { projectName, techFront, techBack, database, userId, dataConnect, source } =
     req.body;
   if (!projectName) {
@@ -48,12 +43,7 @@ export async function generateProject(req, res) {
 
       switch (techFront) {
         case "Angular":
-          /*await execAsync(`npx @angular/cli new ${projectName}`, {
-            cwd: projectsDir,
-          });*/
           await copyProject(projectName, projectKey, "project-angular-nodeM");
-
-          //createProject(projectName, projectsDir)
           break;
 
         case "React":
@@ -72,12 +62,7 @@ export async function generateProject(req, res) {
     } else {
       switch (techFront) {
         case "Angular":
-          /*await execAsync(`npx @angular/cli new ${projectName} --skip-install`, {
-            cwd: projectsDir,
-          });*/
           await copyProject(projectName, projectKey, "project-angular");
-
-          //createProject(projectName, projectsDir)
           break;
 
         case "React":
@@ -94,7 +79,6 @@ export async function generateProject(req, res) {
       }
     }
     console.log('\n');
-    console.log(database);
     switch (techBack) {
       case "Express":
         await copyProject(projectNameBack, projectKey, "project-express");

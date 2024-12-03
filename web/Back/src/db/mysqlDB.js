@@ -11,9 +11,10 @@ export default async function getAllMysqlTablesAndFields(connection) {
     const [tables] = await connection.query(`SHOW TABLES;`);
 
     if (!Array.isArray(tables) || tables.length === 0) {
-      throw new Error(
-        "No tables found or unexpected response format from query"
-      );
+      return { message: "No tables found or unexpected response format from query" };
+      // throw new Error(
+      //   "No tables found or unexpected response format from query"
+      // );
     }
 
     const tableDetails = [];

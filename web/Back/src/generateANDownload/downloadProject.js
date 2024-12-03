@@ -42,7 +42,8 @@ export async function archiveProject(projectName, projectKey, projectsDir) {
             ignore: [
                 `${projectName}/node_modules/**`,
                 `${projectName}Back/node_modules/**`
-            ]
+            ],
+            dot: true,
         });
 
         archive.finalize();

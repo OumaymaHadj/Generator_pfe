@@ -410,7 +410,7 @@ export default function Recommandation() {
                                 <span></span>
                             </span>
                             <span className="btn_cta-title">
-                                <span data-text="Create Your Project">Create Your Project</span>
+                                <span data-text="Create Project">Create Project</span>
                             </span>
                         </button>
                     </div>

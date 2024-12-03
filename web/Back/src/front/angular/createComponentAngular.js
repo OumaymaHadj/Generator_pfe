@@ -28,16 +28,22 @@ export default async function createComponent(req, res) {
     
     let isFirstTable = true;
 
-    for (const table of selectedTables) {
-      await generateComponent(table, projectPath, database);
-      await generateModel(table, projectPath);
-      await generateService(table.name, projectPath);
+    if (selectedTables.length > 0){
+      for (const table of selectedTables) {
+        await generateComponent(table, projectPath, database);
+        await generateModel(table, projectPath);
+        await generateService(table.name, projectPath);
+  
+        const nameComponentMaj = capitalizeFirstLetter(table.name);
+        await watcherForUpdate(table.name, nameComponentMaj, projectPath, projectKey, isFirstTable);
+        isFirstTable = false;
+        await createCrud(projectKey, projectNameBack, table,database);
+      }
+    } else {
+      await watcherForUpdate(null, null, projectPath, projectKey, isFirstTable);
 
-      const nameComponentMaj = capitalizeFirstLetter(table.name);
-      await watcherForUpdate(table.name, nameComponentMaj, projectPath, projectKey, isFirstTable);
-      isFirstTable = false;
-      await createCrud(projectKey, projectNameBack, table,database);
     }
+
 
     //await generateImports(projectPath);
 

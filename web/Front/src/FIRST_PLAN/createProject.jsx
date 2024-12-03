@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useRef } from "react";
 import axios from "axios";
 import Loader from "../common/loader.jsx";
 import TablesModal from "./tablesModal";
@@ -12,6 +12,7 @@ export default function CreateProject() {
   const [projectName, setProjectName] = useState("");
   const [showModal, setShowModal] = useState(false);
   const [showErrorModal, setShowErrorModal] = useState(false);
+  const [showNoteModal, setShowNoteModal] = useState(false);
   const [error, setError] = useState("");
   const [tables, setTables] = useState([]);
   const [selectedTables, setSelectedTables] = useState([]);
@@ -22,6 +23,7 @@ export default function CreateProject() {
   const [database, setDatabase] = useState("");
   const [showLiveDemoButton, setShowLiveDemoButton] = useState(false);
   const navigate = useNavigate();
+  const formRef = useRef(null);
 
   const getQueryParams = () => {
     const params = new URLSearchParams(location.search);
@@ -81,9 +83,13 @@ export default function CreateProject() {
         } catch (error) {
           console.error("Error generating project:", error);
         }
+        if (response.data.tables.message === 'No tables found or unexpected response format from query'){
+          setShowNoteModal(true);
+        } else {
+          setTables(response.data.tables);
+          setShowModal(true);
+        }
 
-        setTables(response.data.tables);
-        setShowModal(true);
       }
     } catch (error) {
       console.error("Error fetching tables:", error);
@@ -106,8 +112,18 @@ export default function CreateProject() {
 
   const handleErrorClose = () => setShowErrorModal(false);
 
+  const handleNoteClose = () => setShowNoteModal(false)
+
+  const generateWithoutTables = () => {
+    source === 'init' ? downloadProjects() : navigateToLiveDemo()
+    handleNoteClose()
+  } 
+
   const handleSubmitComponent = async (event) => {
     //event.preventDefault();
+    if (formRef.current) {
+      formRef.current.resetForm();
+    }
     const selectedTable = getSelectedTableData();
     if (!selectedTable) {
       console.error("No table selected or table data missing");
@@ -165,9 +181,14 @@ export default function CreateProject() {
 
   const navigateToLiveDemo = async () => {
     const distinctTables = [...new Set(selectedTables)];
+    let url ;
+    url = `/liveDemo?projectKey=${projectKey}&techFront=${techFront}&projectName=${projectName}`
 
+    if (distinctTables && distinctTables.length > 0) {
+      url += `&selectedTables=${distinctTables}`
+    }
     console.log(distinctTables);
-    navigate(`/liveDemo?projectKey=${projectKey}&techFront=${techFront}&projectName=${projectName}&selectedTables=${distinctTables}`);
+    navigate(url);
   }
 
   const downloadProjects = async () => {
@@ -199,7 +220,9 @@ export default function CreateProject() {
       }*/
 
     } catch (err) {
-      //setError('Erreur lors du téléchargement du projet.');
+      setLoading(false)
+      setError('Erreur lors du téléchargement du projet.');
+      setShowErrorModal(true);
       console.error("Erreur lors du téléchargement:", err);
     }
   }
@@ -247,31 +270,6 @@ export default function CreateProject() {
       setSelectedTables(selectedTables.filter((name) => name !== tableName));
     }
   };
-
-  /*async function openLiveDemo() {
-
-    const response = await axios.post(
-      "http://localhost:4000/live-demo",
-      { projectKey, projectName, techFront }
-    );
-
-    console.log(response);
-    let link
-    switch (techFront) {
-      case 'Angular':
-        link = `http://localhost:4200/${projectKey}`
-        break;
-      case 'React':
-        link = `http://localhost:3000/${projectKey}`
-        break;
-      case 'Vue':
-        link = `http://localhost:8080/${projectKey}`
-        break;
-      default:
-        break;
-    }
-    window.open(link, '_blank');
-  }*/
 
   async function openLiveDemo() {
     // Open a new blank window first
@@ -353,7 +351,7 @@ export default function CreateProject() {
       ) : (
         <>
           <Loader loading={loading} />
-          <ProjectForm handleSubmit={handleSubmit} loading={loading} />
+          <ProjectForm ref={formRef} handleSubmit={handleSubmit} loading={loading} />
           <TablesModal
             showModal={showModal}
             handleClose={handleClose}
@@ -395,6 +393,36 @@ export default function CreateProject() {
               </div>
             </Modal.Footer>
           </Modal>
+
+          <Modal
+            show={showNoteModal}
+            onHide={handleNoteClose}
+            centered
+            size='lg'
+          >
+            <Modal.Header closeButton>
+              <Modal.Title style={{ fontSize: '30px' }}>
+                No tables found in your database
+              </Modal.Title>
+            </Modal.Header>
+            <Modal.Body>
+              <h3>Generate the project anyway.</h3>
+            </Modal.Body>
+            <Modal.Footer>
+              <div className="btn-recommondation">
+                <button className="btn btn_cta -sm btn-save" onClick={generateWithoutTables}>
+                  <span className="btn_cta-border"></span>
+                  <span className="btn_cta-ripple">
+                    <span></span>
+                  </span>
+                  <span className="btn_cta-title">
+                    <span data-text="Okay">Okay</span>
+                  </span>
+                </button>
+              </div>
+            </Modal.Footer>
+          </Modal>
+
         </>
       )}
     </div>

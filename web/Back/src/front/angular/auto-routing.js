@@ -7,10 +7,28 @@ import { greenText } from '../../../public/data-modal.js';
 
 export async function watcherForUpdate(selectedTableName, nameComponentMaj, projectPath, projectKey, isFirstTable) {
     const routesFilePath = path.join(projectPath, "src", "app", "app.routes.ts");
-    const importStatement = `import { ${nameComponentMaj}Component } from './${selectedTableName}/${selectedTableName}.component';`;
 
     try {
         let data = await fs.promises.readFile(routesFilePath, "utf8");
+
+        if (selectedTableName === null) {
+            const defaultRoute = `  { path: '', redirectTo: '${projectKey}', pathMatch: 'full' },`;
+    
+            // Check if the default route already exists
+            if (!data.includes(defaultRoute)) {
+                data = data.replace(
+                    "export const routes: Routes = [",
+                    `export const routes: Routes = [\n${defaultRoute}`
+                );
+            }
+    
+            // Write the updated data back to the routes file
+            await fs.promises.writeFile(routesFilePath, data, "utf8");
+            console.log(greenText, `\n \t Default route added for project key: \x1b[1m${projectKey}\x1b[0m \x1b[32m\u2714.`);
+            return;
+        }
+
+        const importStatement = `import { ${nameComponentMaj}Component } from './${selectedTableName}/${selectedTableName}.component';`;
 
         // Add import statement if it doesn't already exist
         if (!data.includes(importStatement)) {
