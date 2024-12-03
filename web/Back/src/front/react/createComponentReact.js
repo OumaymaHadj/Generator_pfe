@@ -3,7 +3,7 @@ import fs from "fs/promises";
 import createCrud from "../../back/node/createCrudNode.js";
 
 
-export default async function createCrudComponent(res, req) {
+export default async function createComponentReact(res, req) {
   const { projectName, selectedTables, projectKey, database } = req.body;
   const projectNameBack = projectName + "Back";
 

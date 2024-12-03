@@ -1,3 +1,4 @@
+import CryptoService from "../service/CryptoService.jsx";
 import React, { useState, useRef } from "react";
 import axios from "axios";
 import Loader from "../common/loader.jsx";
@@ -56,40 +57,39 @@ export default function CreateProject() {
     } = formData;
     setTechFront(techFront);
     const dataConnect = { database, host, port, username, password, namedb };
+    const encryptedDataConnect = CryptoService.encrypt(dataConnect);
+
     const dataGenerate = { projectName, techFront, techBack, database, dataConnect, source };
+    const encryptedDataGenerate = CryptoService.encrypt(dataGenerate);
 
     setProjectName(projectName);
     setDatabase(database)
     setLoading(true);
 
     try {
-      const response = await axios.post(
-        "http://localhost:4000/connect",
-        dataConnect
-      );
+      const response = await axios.post("http://localhost:4000/connect", { encryptedDataConnect });
 
-      if (
-        response.data.message &&
-        response.data.message.includes("Successfully") &&
-        response.status === 200
-      ) {
-        try {
-          const response = await axios.post(
-            "http://localhost:4000/generateProject",
-            dataGenerate
-          );
+      if (response.status === 200) {
+        const { tables: encryptedTables } = response.data;
+        const tables = CryptoService.decrypt(encryptedTables);
 
-          setProjectKey(response.data.projectKey);
-        } catch (error) {
-          console.error("Error generating project:", error);
-        }
-        if (response.data.tables.message === 'No tables found or unexpected response format from query'){
+        if (tables.message === 'No tables found or unexpected response format from query') {
           setShowNoteModal(true);
         } else {
-          setTables(response.data.tables);
+          setTables(tables);
           setShowModal(true);
         }
 
+        try {
+          const project = await axios.post("http://localhost:4000/generateProject", { encryptedDataGenerate });
+          if (project.data.success){
+            const { projectKey : encryptedKey } = project.data;
+            const projectKey = CryptoService.decrypt(encryptedKey);
+            setProjectKey(projectKey);
+          }
+        } catch (error) {
+          console.error("Error generating project:", error);
+        }
       }
     } catch (error) {
       console.error("Error fetching tables:", error);
@@ -100,7 +100,7 @@ export default function CreateProject() {
       } else {
         errorMessage = error.message || "Network error or server not reachable.";
       }
-    
+
       setError(errorMessage);
       setShowErrorModal(true);
     } finally {
@@ -117,7 +117,7 @@ export default function CreateProject() {
   const generateWithoutTables = () => {
     source === 'init' ? downloadProjects() : navigateToLiveDemo()
     handleNoteClose()
-  } 
+  }
 
   const handleSubmitComponent = async (event) => {
     //event.preventDefault();
@@ -136,33 +136,22 @@ export default function CreateProject() {
       projectKey: projectKey,
       database: database
     };
+
+    const encryptedRequestData = CryptoService.encrypt(requestData);
+
     setLoading(true);
     let response;
     try {
       setShowSuccessToast(false);
       if (techFront === "Angular") {
-        response = await axios.post(
-          "http://localhost:4000/componentAngular",
-          requestData
-        );
+        response = await axios.post("http://localhost:4000/componentAngular", {encryptedRequestData});
       } else if (techFront === "React") {
-        response = await axios.post(
-          "http://localhost:4000/componentReact",
-          requestData
-        );
+        response = await axios.post("http://localhost:4000/componentReact", {encryptedRequestData});
       } else if (techFront === "Vue") {
-        response = await axios.post(
-          "http://localhost:4000/componentVue",
-          requestData
-        );
+        response = await axios.post("http://localhost:4000/componentVue", {encryptedRequestData});
       }
 
-
-      if (
-        response.data.message &&
-        response.data.message.includes("successfully") &&
-        response.status === 200
-      ) {
+      if (response.status === 200) {
         console.log("component generated successfully");
         setShowSuccessToast(true);
       } else {
@@ -175,13 +164,13 @@ export default function CreateProject() {
       setSelectedTables([]);
       handleClose();
 
-      source === 'init' ? downloadProjects() : navigateToLiveDemo()//setShowLiveDemoButton(true);
+      source === 'init' ? downloadProjects() : navigateToLiveDemo();
     }
   };
 
   const navigateToLiveDemo = async () => {
     const distinctTables = [...new Set(selectedTables)];
-    let url ;
+    let url;
     url = `/liveDemo?projectKey=${projectKey}&techFront=${techFront}&projectName=${projectName}`
 
     if (distinctTables && distinctTables.length > 0) {

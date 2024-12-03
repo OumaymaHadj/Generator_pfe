@@ -1,143 +1,147 @@
 import fs from "fs-extra";
 import path from "path";
 import { showLoading } from "../db/myDB.js";
+import CryptoService from "../services/CryptoService.js";
 
 let projectKey;
 export { projectKey };
 
 export async function createProject(req, res) {
-  const { projectName, techFront, techBack, database, userId, dataConnect, source } =
-    req.body;
-  if (!projectName) {
-    return res.status(400).send("Le nom du projet est requis.");
-  }
 
-  if (
-    !dataConnect ||
-    !dataConnect.database ||
-    !dataConnect.host ||
-    !dataConnect.port ||
-    //!dataConnect.username ||
-    //!dataConnect.password ||
-    !dataConnect.namedb
-  ) {
-    return res
-      .status(400)
-      .send(
-        "Les informations de connexion à la base de données sont incomplètes."
-      );
-  }
 
-  const projectNameBack = projectName + "Back";
-  const loadingInterval = showLoading();
+  const { encryptedDataGenerate } = req.body;
 
   try {
-    const projectKey = await generateKey(25);
-    const projectsDir = path.join(process.cwd(), "projects", projectKey);
+    const decryptedDataGenerate = CryptoService.decrypt(encryptedDataGenerate);
+    const { projectName, techFront, techBack, database, dataConnect, source } = decryptedDataGenerate;
 
-    if (!fs.existsSync(projectsDir)) {
-      fs.mkdirSync(projectsDir, { recursive: true });
+    if (!projectName) {
+      return res.status(400).send("Le nom du projet est requis.");
     }
 
-    if (source === 'initWithDemo') {
-
-      switch (techFront) {
-        case "Angular":
-          await copyProject(projectName, projectKey, "project-angular-nodeM");
-          break;
-
-        case "React":
-          await copyProject(projectName, projectKey, "project-react-nodeM");
-          break;
-
-        case "Vue":
-          await copyProject(projectName, projectKey, "project-vue-nodeM");
-          break;
-
-        default:
-          clearInterval(loadingInterval);
-          return res.status(400).send("Technologie front-end non supportée.");
-      }
-
-    } else {
-      switch (techFront) {
-        case "Angular":
-          await copyProject(projectName, projectKey, "project-angular");
-          break;
-
-        case "React":
-          await copyProject(projectName, projectKey, "project-react");
-          break;
-
-        case "Vue":
-          await copyProject(projectName, projectKey, "project-vue");
-          break;
-
-        default:
-          clearInterval(loadingInterval);
-          return res.status(400).send("Technologie front-end non supportée.");
-      }
+    if (!dataConnect || !dataConnect.database || !dataConnect.host || !dataConnect.port || /*!dataConnect.username || !dataConnect.password*/ !dataConnect.namedb) {
+      return res.status(400).send("Les informations de connexion à la base de données sont incomplètes.");
     }
-    console.log('\n');
-    switch (techBack) {
-      case "Express":
-        await copyProject(projectNameBack, projectKey, "project-express");
-        switch (database) {
-          case "mysql":
-            generateMySQLConnectionContent(
-              dataConnect,
-              projectsDir,
-              projectNameBack
-            );
+
+
+    const projectNameBack = projectName + "Back";
+    const loadingInterval = showLoading();
+
+    try {
+      const projectKey = await generateKey(25);
+      const projectsDir = path.join(process.cwd(), "projects", projectKey);
+
+      if (!fs.existsSync(projectsDir)) {
+        fs.mkdirSync(projectsDir, { recursive: true });
+      }
+
+      if (source === 'initWithDemo') {
+
+        switch (techFront) {
+          case "Angular":
+            await copyProject(projectName, projectKey, "project-angular-nodeM");
             break;
 
-          case "mongoDB":
-            generateMongooseConnectionContent(
-              dataConnect,
-              projectsDir,
-              projectNameBack
-            );
+          case "React":
+            await copyProject(projectName, projectKey, "project-react-nodeM");
             break;
 
-          case "postgres":
-            generatePostgresConnectionContent(
-              dataConnect,
-              projectsDir,
-              projectNameBack
-            );
+          case "Vue":
+            await copyProject(projectName, projectKey, "project-vue-nodeM");
             break;
 
           default:
             clearInterval(loadingInterval);
-            return res.status(400).send("Base de données non supportée.");
+            return res.status(400).send("Technologie front-end non supportée.");
         }
-        break;
 
-      default:
-        clearInterval(loadingInterval);
-        return res.status(400).send("Technologie back-end non supportée.");
+      } else {
+        switch (techFront) {
+          case "Angular":
+            await copyProject(projectName, projectKey, "project-angular");
+            break;
+
+          case "React":
+            await copyProject(projectName, projectKey, "project-react");
+            break;
+
+          case "Vue":
+            await copyProject(projectName, projectKey, "project-vue");
+            break;
+
+          default:
+            clearInterval(loadingInterval);
+            return res.status(400).send("Technologie front-end non supportée.");
+        }
+      }
+      console.log('\n');
+      switch (techBack) {
+        case "Express":
+          await copyProject(projectNameBack, projectKey, "project-express");
+          switch (database) {
+            case "mysql":
+              generateMySQLConnectionContent(
+                dataConnect,
+                projectsDir,
+                projectNameBack
+              );
+              break;
+
+            case "mongoDB":
+              generateMongooseConnectionContent(
+                dataConnect,
+                projectsDir,
+                projectNameBack
+              );
+              break;
+
+            case "postgres":
+              generatePostgresConnectionContent(
+                dataConnect,
+                projectsDir,
+                projectNameBack
+              );
+              break;
+
+            default:
+              clearInterval(loadingInterval);
+              return res.status(400).send("Base de données non supportée.");
+          }
+          break;
+
+        default:
+          clearInterval(loadingInterval);
+          return res.status(400).send("Technologie back-end non supportée.");
+      }
+
+
+
+      updatePackageJson(projectsDir, database, projectNameBack);
+
+      clearInterval(loadingInterval);
+
+      const encryptedKey = CryptoService.encrypt(projectKey);
+
+      return res.json({ success: true, message: "Projet créé avec succès.", projectKey : encryptedKey });
+
+    } catch (error) {
+
+      clearInterval(loadingInterval);
+      console.error("Erreur lors de la génération du projet:", error);
+      return res.status(500).json({
+        success: false,
+        message: "Erreur lors de la génération du projet.",
+        details: error.message,
+      });
     }
 
 
 
-    updatePackageJson(projectsDir, database, projectNameBack);
-
-    clearInterval(loadingInterval);
-
-    return res.json({
-      success: true,
-      message: "Projet créé avec succès.",
-      projectKey,
-    });
   } catch (error) {
-    clearInterval(loadingInterval);
-    console.error("Erreur lors de la génération du projet:", error);
-    return res.status(500).json({
-      success: false,
-      message: "Erreur lors de la génération du projet.",
-      details: error.message,
-    });
+    console.error("Erreur lors du déchiffrement :", error);
+    res.status(500).send({ success: false, error: error.message });
   }
+
 }
 
 async function generateKey(length) {
