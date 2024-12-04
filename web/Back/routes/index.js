@@ -26,7 +26,7 @@ router.post("/componentAngular", async (req, res) => {
 router.post("/componentReact", async (req, res) => {
 
   try {
-    const result = await createComponentReact(res, req);
+    const result = await createComponentReact(req, res);
   } catch (error) {
     console.error("An error occurred:", error);
     res.status(500).json({ error: "An error occurred while creating the React component." });

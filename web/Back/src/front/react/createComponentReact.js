@@ -1,68 +1,82 @@
 import path from "path";
 import fs from "fs/promises";
 import createCrud from "../../back/node/createCrudNode.js";
+import CryptoService from "../../services/CryptoService.js";
 
 
-export default async function createComponentReact(res, req) {
-  const { projectName, selectedTables, projectKey, database } = req.body;
-  const projectNameBack = projectName + "Back";
+export default async function createComponentReact(req, res) {
+
+  const { encryptedRequestData } = req.body;
 
   try {
-    const projectDir = path.resolve("projects", projectKey, projectName);
-    const srcDir = path.join(projectDir, "src");
-    const projectDirBack = path.resolve("projects", projectKey, projectNameBack);
-    const indexTablesDir = path.join(srcDir, "views/Dashboard/Tables");
-    const indexTablesPath = path.join(indexTablesDir, `index.js`);
+
+    const decryptedRequestData = CryptoService.decrypt(encryptedRequestData);
+
+    const { projectName, selectedTables, projectKey, database } = decryptedRequestData;
+    const projectNameBack = projectName + "Back";
 
     try {
-      await fs.access(projectDir);
-    } catch (err) {
-      return { error: `${projectName} does not exist.` };
+      const projectDir = path.resolve("projects", projectKey, projectName);
+      const srcDir = path.join(projectDir, "src");
+      const projectDirBack = path.resolve("projects", projectKey, projectNameBack);
+      const indexTablesDir = path.join(srcDir, "views/Dashboard/Tables");
+      const indexTablesPath = path.join(indexTablesDir, `index.js`);
+  
+      try {
+        await fs.access(projectDir);
+      } catch (err) {
+        return { error: `${projectName} does not exist.` };
+      }
+      for (const selectedTable of selectedTables) {
+        const componentName = selectedTable.name.charAt(0).toUpperCase() + selectedTable.name.slice(1) + 's';
+        const serviceName = selectedTable.name + "Service";
+        const componentDir = path.join(srcDir, "views/Dashboard/Tables/components");
+        //const indexTablesDir = path.join(srcDir, "views/Dashboard/Tables");
+        const serviceDir = path.join(srcDir, "services");
+        const componentPath = path.join(componentDir, `${componentName}.js`);
+        const servicePath = path.join(serviceDir, `${serviceName}.js`);
+        //const indexTablesPath = path.join(indexTablesDir, `index.js`);
+        //const appFile = path.join(srcDir, "App.js");
+  
+        await fs.mkdir(componentDir, { recursive: true });
+        await fs.mkdir(serviceDir, { recursive: true });
+        //await fs.mkdir(indexTablesPath, { recursive: true });
+  
+        const componentContent = generateComponentContent(selectedTable, serviceName, database);
+  
+        const serviceContent = generateServiceContent(serviceName, selectedTable);
+  
+        //const indexTablesContent = generateIndexTablesContent(selectedTable)
+  
+        await fs.writeFile(componentPath, componentContent.trim(), "utf8");
+        await fs.writeFile(servicePath, serviceContent, "utf8");
+  
+        //await modifyAppJs(appFile, componentName, selectedTable);
+        // await generateNestResource(selectedTable.name,projectKey,projectNameBack);
+        createCrud(projectKey, projectNameBack, selectedTable, database);
+  
+        // console.log(`Files ${componentName}.jsx and ${serviceName}.js have been created successfully in ${srcDir}!`);
+        // console.log(`The component has been imported and routing added to ${appFile}!`);
+      }
+  
+      const indexTablesContent = generateIndexTablesContent(selectedTables)
+      await fs.writeFile(indexTablesPath, indexTablesContent, "utf8");
+  
+  
+  
+      return res.json({
+        success: true,
+        message: "Components created successfully.",
+      });
+    } catch (error) {
+      console.error("An error occurred:", error);
+      return { error: "An error occurred while creating the CRUD component." };
     }
-    for (const selectedTable of selectedTables) {
-      const componentName = selectedTable.name.charAt(0).toUpperCase() + selectedTable.name.slice(1) + 's';
-      const serviceName = selectedTable.name + "Service";
-      const componentDir = path.join(srcDir, "views/Dashboard/Tables/components");
-      //const indexTablesDir = path.join(srcDir, "views/Dashboard/Tables");
-      const serviceDir = path.join(srcDir, "services");
-      const componentPath = path.join(componentDir, `${componentName}.js`);
-      const servicePath = path.join(serviceDir, `${serviceName}.js`);
-      //const indexTablesPath = path.join(indexTablesDir, `index.js`);
-      //const appFile = path.join(srcDir, "App.js");
-
-      await fs.mkdir(componentDir, { recursive: true });
-      await fs.mkdir(serviceDir, { recursive: true });
-      //await fs.mkdir(indexTablesPath, { recursive: true });
-
-      const componentContent = generateComponentContent(selectedTable, serviceName, database);
-
-      const serviceContent = generateServiceContent(serviceName, selectedTable);
-
-      //const indexTablesContent = generateIndexTablesContent(selectedTable)
-
-      await fs.writeFile(componentPath, componentContent.trim(), "utf8");
-      await fs.writeFile(servicePath, serviceContent, "utf8");
-
-      //await modifyAppJs(appFile, componentName, selectedTable);
-      // await generateNestResource(selectedTable.name,projectKey,projectNameBack);
-      createCrud(projectKey, projectNameBack, selectedTable, database);
-
-     // console.log(`Files ${componentName}.jsx and ${serviceName}.js have been created successfully in ${srcDir}!`);
-     // console.log(`The component has been imported and routing added to ${appFile}!`);
-    }
-
-    const indexTablesContent = generateIndexTablesContent(selectedTables)
-    await fs.writeFile(indexTablesPath, indexTablesContent, "utf8");
 
 
-
-    return res.json({
-      success: true,
-      message: "Components created successfully.",
-    });
   } catch (error) {
-    console.error("An error occurred:", error);
-    return { error: "An error occurred while creating the CRUD component." };
+    console.error("Erreur lors du déchiffrement :", error);
+    res.status(500).send({ success: false, error: error.message });
   }
 }
 

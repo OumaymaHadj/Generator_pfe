@@ -1,69 +1,84 @@
 import path from "path";
 import fs from "fs/promises";
 import createCrud from "../../back/node/createCrudNode.js";
+import CryptoService from "../../services/CryptoService.js";
 
 export default async function createComponentVue(req, res) {
-  const { projectName, selectedTables, projectKey, database } = req.body;
-  const projectNameBack = projectName + "Back";
-  
-  if (!projectName) {
-    return res.status(400).json({
-      error: "You should select a project and connect to it before creating forms.",
-    });
-  }
+
+
+  const { encryptedRequestData } = req.body;
 
   try {
-    for (const selectedTable of selectedTables) {
-      const componentName = capitalizeFirstLetter(selectedTable.name);
-      const projectDir = path.resolve("projects", projectKey, projectName);
-      const srcDir = path.join(projectDir, "src");
-      const componentsDir = path.join(srcDir, "views/components");
-      const tablesDir = path.join(srcDir, "views/Tables.vue");
-      const servicesDir = path.join(srcDir, "services");
 
-      await ensureDirectoryExists(projectDir);
-      await fs.mkdir(componentsDir, { recursive: true });
-      await fs.mkdir(servicesDir, { recursive: true });
+    const decryptedRequestData = CryptoService.decrypt(encryptedRequestData);
 
-      const serviceName = `${capitalizeFirstLetter(selectedTable.name)}Service`;
-      const componentPath = path.join(componentsDir, `${componentName}Component.vue`);
-      const servicePath = path.join(servicesDir, `${serviceName}.js`);
+    const { projectName, selectedTables, projectKey, database } = decryptedRequestData;
+    const projectNameBack = projectName + "Back";
 
-      if (await fileExists(componentPath)) {
-        return res.status(400).json({ error: `Component ${componentName} already exists.` });
-      }
 
-      await fs.writeFile(
-        componentPath,
-        generateComponentContent(componentName, selectedTable.name),
-        "utf8"
-      );
-      await fs.writeFile(
-        servicePath,
-        generateServiceContent(serviceName, selectedTable.name),
-        "utf8"
-      );
-      await fs.writeFile(
-        tablesDir,
-        await generateTablesContent(selectedTables),
-        "utf8"
-      );
-
-      //await updateRouting(projectDir, componentName);
-      await createCrud(projectKey, projectNameBack, selectedTable, database);
-
+    if (!projectName) {
+      return res.status(400).json({
+        error: "You should select a project and connect to it before creating forms.",
+      });
     }
 
+    try {
+      for (const selectedTable of selectedTables) {
+        const componentName = capitalizeFirstLetter(selectedTable.name);
+        const projectDir = path.resolve("projects", projectKey, projectName);
+        const srcDir = path.join(projectDir, "src");
+        const componentsDir = path.join(srcDir, "views/components");
+        const tablesDir = path.join(srcDir, "views/Tables.vue");
+        const servicesDir = path.join(srcDir, "services");
 
-    return res.json({
-      success: true,
-      message: "Components created successfully.",
-    });
+        await ensureDirectoryExists(projectDir);
+        await fs.mkdir(componentsDir, { recursive: true });
+        await fs.mkdir(servicesDir, { recursive: true });
+
+        const serviceName = `${capitalizeFirstLetter(selectedTable.name)}Service`;
+        const componentPath = path.join(componentsDir, `${componentName}Component.vue`);
+        const servicePath = path.join(servicesDir, `${serviceName}.js`);
+
+        if (await fileExists(componentPath)) {
+          return res.status(400).json({ error: `Component ${componentName} already exists.` });
+        }
+
+        await fs.writeFile(
+          componentPath,
+          generateComponentContent(componentName, selectedTable.name),
+          "utf8"
+        );
+        await fs.writeFile(
+          servicePath,
+          generateServiceContent(serviceName, selectedTable.name),
+          "utf8"
+        );
+        await fs.writeFile(
+          tablesDir,
+          await generateTablesContent(selectedTables),
+          "utf8"
+        );
+
+        //await updateRouting(projectDir, componentName);
+        await createCrud(projectKey, projectNameBack, selectedTable, database);
+
+      }
+
+
+      return res.json({
+        success: true,
+        message: "Components created successfully.",
+      });
+    } catch (error) {
+      console.error("An error occurred:", error);
+      return res.status(500).json({
+        error: "An unexpected error occurred during the component creation process.",
+      });
+    }
+
   } catch (error) {
-    console.error("An error occurred:", error);
-    return res.status(500).json({
-      error: "An unexpected error occurred during the component creation process.",
-    });
+    console.error("Erreur lors du déchiffrement :", error);
+    res.status(500).send({ success: false, error: error.message });
   }
 }
 

@@ -1,3 +1,4 @@
+import CryptoService from "../service/CryptoService.jsx";
 import React, { useState, useEffect } from "react";
 import ReactDOM from 'react-dom/client';
 import axios from "axios";
@@ -133,15 +134,17 @@ export default function LiveDemo() {
     const handleClose = () => setShowModal(false);
 
     const downloadProjects = async () => {
+
+        let downloadData = { projectName: projectName, projectKey: projectKey }
+        const encryptedDownloadData = CryptoService.encrypt(downloadData);
+
         setShowModal(false)
         setLoading(true)
         try {
             const response = await axios.post(
                 "http://localhost:4000/download",
                 {
-                    projectName: projectName,
-                    projectKey: projectKey
-
+                    encryptedDownloadData
                 },
                 {
                     responseType: "blob",

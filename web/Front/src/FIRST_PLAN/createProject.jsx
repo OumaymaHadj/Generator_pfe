@@ -176,19 +176,17 @@ export default function CreateProject() {
     if (distinctTables && distinctTables.length > 0) {
       url += `&selectedTables=${distinctTables}`
     }
-    console.log(distinctTables);
     navigate(url);
   }
 
   const downloadProjects = async () => {
+
+    let downloadData = { projectName: projectName, projectKey: projectKey }
+    const encryptedDownloadData = CryptoService.encrypt(downloadData);
+
     try {
       const response = await axios.post(
-        "http://localhost:4000/download",
-        {
-          projectName: projectName,
-          projectKey: projectKey
-
-        },
+        "http://localhost:4000/download", { encryptedDownloadData }, 
         {
           responseType: "blob",
         }
