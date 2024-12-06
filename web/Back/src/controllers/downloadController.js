@@ -1,6 +1,6 @@
 import fs from "fs-extra";
 import path from "path";
-import { archiveProject } from "../generateANDownload/downloadProject.js";
+import { archiveProject } from "../generateANDownload/archiveProject.js";
 import CryptoService from "../services/CryptoService.js";
 
 export default async function downloadProject(req, res) {
