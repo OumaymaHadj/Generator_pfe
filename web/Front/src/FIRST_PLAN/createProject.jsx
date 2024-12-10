@@ -78,6 +78,7 @@ export default function CreateProject() {
         } else {
           setTables(tables);
           setShowModal(true);
+          setLoading(false);
         }
 
         try {

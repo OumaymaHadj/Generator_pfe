@@ -9,11 +9,13 @@ const writeFileAsync = util.promisify(fs.writeFile);
 const execPromise = util.promisify(exec);
 
 export async function generateService(selectedTableName, projectPath) {
+  const lowerTableName = selectedTableName.charAt(0).toLowerCase() + selectedTableName.slice(1);
+
     const servicePath = path.join(
         projectPath,
         "src",
         "service",
-        selectedTableName
+        lowerTableName
     );
 
     if (fs.existsSync(servicePath)) {
@@ -24,23 +26,23 @@ export async function generateService(selectedTableName, projectPath) {
     fs.mkdirSync(servicePath, { recursive: true });
 
     try {
-        await execPromise(`ng generate service ${selectedTableName}`, {
+        await execPromise(`ng generate service ${lowerTableName}`, {
             cwd: servicePath,
         });
 
         console.log(
             greenText,
-            `\t Service \x1b[1m${selectedTableName}\x1b[0m \x1b[32mcreated successfully \u2714.`
+            `\t Service \x1b[1m${lowerTableName}\x1b[0m \x1b[32mcreated successfully \u2714.`
         );
 
         const serviceFilePath = path.join(
             servicePath,
-            `${selectedTableName}.service.ts`
+            `${lowerTableName}.service.ts`
         );
-        const serviceContent = generateServiceContent(selectedTableName);
+        const serviceContent = generateServiceContent(lowerTableName);
         await writeFileAsync(serviceFilePath, serviceContent);
         console.log(
-            `\t Service \x1b[1m${selectedTableName}\x1b[0m updated successfully \u2714.`
+            `\t Service \x1b[1m${lowerTableName}\x1b[0m updated successfully \u2714.`
         );
     } catch (error) {
         console.error(`Error generating service: ${error.message}`);
@@ -59,7 +61,7 @@ function generateServiceContent(selectedTableName) {
   @Injectable({
     providedIn: 'root'
   })
-  export class ${nameComponentMaj}Service {
+  export class ${selectedTableName}Service {
   
   private apiUrl = 'http://localhost:3003/${selectedTableName}s';
   

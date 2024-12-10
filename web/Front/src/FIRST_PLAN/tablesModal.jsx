@@ -37,8 +37,8 @@ const TablesModal = ({
       }
       return false;
     });
-  
-  
+
+
     // Si une table sélectionnée n'a pas de 'pk', montrer un avertissement
     if (hasMissingPk && database !== 'mongoDB') {
       setShowWarning(true); // Afficher l'avertissement si un champ 'pk' est manquant
@@ -46,7 +46,7 @@ const TablesModal = ({
       handleSubmitComponent(); // Procéder à la sauvegarde si toutes les tables sélectionnées ont un champ 'pk'
     }
   };
-  
+
 
   return (
     <>
@@ -62,59 +62,62 @@ const TablesModal = ({
           </Modal.Title>
         </Modal.Header>
         <Modal.Body>
-          <DataTable value={combinedData} tableStyle={{ minWidth: '50rem' }}>
-            <Column
-              field="tableName"
-              header={
-                <>
-                  <Checkbox
-                    checked={areAllTablesSelected()}
-                    onChange={selectAll}
-                  />
-                  <span className="font-bold">Table Name</span>
-                </>
-              }
-              headerStyle={{ width: '30rem', fontSize: '18px', textAlign: 'center' }}
-              bodyStyle={{ fontSize: '14px', textAlign: 'center' }}
-              body={(rowData, { rowIndex }) => {
-                const isFirst = rowIndex === 0 || combinedData[rowIndex - 1].tableName !== rowData.tableName;
-                return (
+          <div style={{ maxHeight: '400px', overflowY: 'auto' }}>
+            <DataTable value={combinedData} tableStyle={{ minWidth: '50rem' }}>
+              <Column
+                field="tableName"
+                header={
+                  <>
+                    <Checkbox
+                      checked={areAllTablesSelected()}
+                      onChange={selectAll}
+                    />
+                    <span className="font-bold">Table Name</span>
+                  </>
+                }
+                headerStyle={{ width: '30rem', fontSize: '18px', textAlign: 'center' }}
+                bodyStyle={{ fontSize: '14px', textAlign: 'center' }}
+                body={(rowData, { rowIndex }) => {
+                  const isFirst = rowIndex === 0 || combinedData[rowIndex - 1].tableName !== rowData.tableName;
+                  return (
+                    <div className="flex align-items-center gap-2">
+                      {isFirst && (
+                        <Checkbox
+                          checked={isTableSelected(rowData.tableName)}
+                          onChange={(e) => onSelectTable(e, rowData.tableName)}
+                        />
+                      )}
+                      <span className={isFirst ? "font-bold" : "font-bold invisible"}>{rowData.tableName}</span>
+                    </div>
+                  );
+                }}
+                style={{ width: '30rem', fontSize: '14px' }}
+              />
+              <Column
+                field="field"
+                header="Field"
+                style={{ minWidth: '200px' }}
+                headerStyle={{ width: '30rem', fontSize: '18px' }}
+                bodyStyle={{ fontSize: '14px' }}
+                body={(rowData) => (
                   <div className="flex align-items-center gap-2">
-                    {isFirst && (
-                      <Checkbox
-                        checked={isTableSelected(rowData.tableName)}
-                        onChange={(e) => onSelectTable(e, rowData.tableName)}
-                      />
-                    )}
-                    <span className={isFirst ? "font-bold" : "font-bold invisible"}>{rowData.tableName}</span>
+                    <span>{rowData.field}</span>
+                    {rowData.pk && <FaKey style={{ marginLeft: '10px', color: 'yellow' }} />} {/* Icon for primary key */}
+                    {rowData.fk && <FaKey style={{ marginLeft: '10px', color: 'gray' }} />} {/* Icon for foreign key */}
                   </div>
-                );
-              }}
-              style={{ width: '30rem', fontSize: '14px' }}
-            />
-            <Column
-              field="field"
-              header="Field"
-              style={{ minWidth: '200px' }}
-              headerStyle={{ width: '30rem', fontSize: '18px' }}
-              bodyStyle={{ fontSize: '14px' }}
-              body={(rowData) => (
-                <div className="flex align-items-center gap-2">
-                  <span>{rowData.field}</span>
-                  {rowData.pk && <FaKey style={{ marginLeft: '10px', color: 'yellow' }} />} {/* Icône pour clé primaire */}
-                  {rowData.fk && <FaKey style={{ marginLeft: '10px', color: 'gray' }} />} {/* Icône pour clé étrangère */}
-                </div>
-              )}
-            />
-            <Column
-              field="type"
-              header="Type"
-              style={{ minWidth: '150px' }}
-              headerStyle={{ width: '30rem', fontSize: '18px' }}
-              bodyStyle={{ fontSize: '14px' }}
-            />
-          </DataTable>
+                )}
+              />
+              <Column
+                field="type"
+                header="Type"
+                style={{ minWidth: '150px' }}
+                headerStyle={{ width: '30rem', fontSize: '18px' }}
+                bodyStyle={{ fontSize: '14px' }}
+              />
+            </DataTable>
+          </div>
         </Modal.Body>
+
         <Modal.Footer>
           <div className="button-container">
             <button className="btn btn_cta -sm" type="submit" onClick={handleClose}>
@@ -143,7 +146,7 @@ const TablesModal = ({
       <Modal show={showWarning} onHide={() => setShowWarning(false)} centered>
         <Modal.Header closeButton>
           <Modal.Title style={{ fontWeight: 'bold' }}>      <FaExclamationTriangle style={{ color: 'orange', marginRight: '10px' }} />
-          Primary Key Missing</Modal.Title>
+            Primary Key Missing</Modal.Title>
         </Modal.Header>
         <Modal.Body>
           <p style={{ fontSize: '14px' }}>

@@ -117,7 +117,7 @@ export default function Recommandation() {
                 recommendation.database = { name: "MongoDB", logo: "/images/mongoDB.png" };
                 recommendation.message += "En raison des exigences élevées en scalabilité et de la nature non structurée des données, Node.js et MongoDB ont été sélectionnés pour offrir flexibilité et évolutivité.";
             } else {
-                recommendation.backend = { name: "Express.js", logo: "/images/Express.js.png" };
+                recommendation.backend = { name: "Express.js", logo: "/images/Expressjs.png" };
                 recommendation.database = { name: "MySQL", logo: "/images/mySql.png" };
                 recommendation.message += " Pour des projets de petite taille ou avec des besoins de scalabilité faibles, Express.js et MySQL sont des choix économiques et performants."
             }

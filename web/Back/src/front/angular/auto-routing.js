@@ -27,8 +27,9 @@ export async function watcherForUpdate(selectedTableName, nameComponentMaj, proj
             console.log(greenText, `\n \t Default route added for project key: \x1b[1m${projectKey}\x1b[0m \x1b[32m\u2714.`);
             return;
         }
+        const lowerTableName = selectedTableName.charAt(0).toLowerCase() + selectedTableName.slice(1);
 
-        const importStatement = `import { ${nameComponentMaj}Component } from './${selectedTableName}/${selectedTableName}.component';`;
+        const importStatement = `import { ${nameComponentMaj}Component } from './${lowerTableName}/${lowerTableName}.component';`;
 
         // Add import statement if it doesn't already exist
         if (!data.includes(importStatement)) {

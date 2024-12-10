@@ -67,9 +67,9 @@ async function updateHtmlComponent(selectedTable, projectPath, database) {
 function generateTSContent(selectedTable,fieldNames) {
 
   const selectedTableName = capitalizeFirstLetter(selectedTable.name);
-  const nameService = `${selectedTableName}Service`;
   const lowerTableName = selectedTableName.charAt(0).toLowerCase() + selectedTableName.slice(1);
-  
+  const nameService = `${lowerTableName}Service`;
+
   return `
 
 import { Component, OnInit } from '@angular/core';
@@ -101,7 +101,7 @@ export class ${selectedTableName}Component implements OnInit {
   pkFiled:any;
   isAutoIncrement:any;
 
-  constructor(private ${lowerTableName}Service: ${selectedTableName}Service, private messageService: MessageService, private confirmationService: ConfirmationService) { }
+  constructor(private ${lowerTableName}Service: ${lowerTableName}Service, private messageService: MessageService, private confirmationService: ConfirmationService) { }
 
   ngOnInit(): void {
     this.get${selectedTableName}s();
