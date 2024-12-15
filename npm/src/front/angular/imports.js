@@ -1,5 +1,6 @@
 import path from "path";
 import fs from 'fs';
+import { greenText, yellowText, purpleText, redText  } from "../../../public//data-modal.js";
 
 import { contentImports } from "../../../public/import/imports.js";
 
@@ -15,8 +16,8 @@ export async function generateImports(projectPath){
     const fileContent = `${contentImports}`;
 
     try {
-        await fs.promises.writeFile(importsFilePath, fileContent.trim());
-        console.log(`File imports.ts created successfully at ${importsFilePath}`);
+        await fs.promises.writeFile(importsFilePath, fileContent.trim());        
+        console.log(greenText, `\n \t File imports.ts created successfully at ${importsFilePath}`);
     } catch (error) {
         console.error(`Error creating imports.ts: ${error}`);
     }

@@ -27,21 +27,23 @@ export default async function createAngularComponent(projectName, selectedTables
       console.log(`Error: ${projectName} does not exist.`);
       return;
     }
-
     for (const table of selectedTables) {
-      await generateComponent(table, projectPath, database);
-      await generateModel(table, projectPath);
-      await generateService(table.name, projectPath);
-
-      const nameComponentMaj = capitalizeFirstLetter(table.name);
-
-      await watcherForUpdate(table.name, nameComponentMaj, projectPath, projectKey);
-      await createCrud(projectKey, projectNameBack, table, database);
+      try {
+        await generateComponent(table, projectPath, database);
+        await generateModel(table, projectPath);
+        await generateService(table.name, projectPath);
+    
+        const nameComponentMaj = capitalizeFirstLetter(table.name);
+    
+        await watcherForUpdate(table.name, nameComponentMaj, projectPath, projectKey);
+        await createCrud(projectKey, projectNameBack, table, database);
+      } catch (error) {
+        console.error(`Error processing table ${table.name}:`, error);
+      }
     }
 
     await generateImports(projectPath);
 
-    console.log("Components created successfully.");
   } catch (error) {
     console.log("Error:", error.message);
   }

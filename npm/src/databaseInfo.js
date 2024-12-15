@@ -11,6 +11,7 @@ import checkAndRunContainer from "../docker.js";
 import createReactComponent from "./front/react/createComponentReact.js";
 import createVueComponent from "./front/Vue/createComponentVue.js";
 import createAngularComponent from "./front/angular/createComponentAngular.js";
+import { greenText } from "../public/data-modal.js";
 
 export default async function gatherDatabaseInfo(projectAnswers, projectKey) {
   const { database } = projectAnswers;
@@ -65,7 +66,6 @@ export default async function gatherDatabaseInfo(projectAnswers, projectKey) {
       });
 
       const selectedTables = await selectTables(tables);
-
       if (selectedTables.length > 0) {
         await generateComponents(projectAnswers, selectedTables, projectKey, database, databaseInfo);
       } else {
@@ -73,6 +73,7 @@ export default async function gatherDatabaseInfo(projectAnswers, projectKey) {
       }
 
       clientConnection.close();
+      process.exit(0)
     }
   } catch (error) {
     console.error('Error:', error);
@@ -111,7 +112,7 @@ async function selectTables(tables) {
               (response) => {
                 if (response.toLowerCase() === 'all') {
                   selectedTables.push(...tables);
-                  console.log('\nAll tables have been added to the array.');
+                  console.log('\nAll tables have been added.');
                 } else if (response) {
                   const indices = response.split(',').map((num) => parseInt(num.trim()) - 1);
                   indices.forEach((index) => {
@@ -147,7 +148,6 @@ async function selectTables(tables) {
 }
 
 async function generateComponents(projectAnswers, selectedTables, projectKey, database, databaseInfo) {
-  console.log('ggggggggggggggggggggggggggg', database);
   const { techFront, projectName } = projectAnswers;
   const projectNameBack = projectName + "Back";
   const projectDirBack = path.join(os.homedir(), projectKey, projectNameBack);
@@ -179,13 +179,11 @@ async function generateComponents(projectAnswers, selectedTables, projectKey, da
       console.log('Unsupported front-end technology.');
       return;
   }
-
-  console.log(`${techFront} components created successfully.`);
+  console.log(greenText, `\n \t ${techFront} component(s) created successfully.`);
   
   // Database connection generation
   switch (database) {
     case "mysql":
-      console.log('ggggggg');
       await generateMySQLConnectionContent(databaseInfo, projectDirBack, projectNameBack);
       break;
     case "mongoDB":
@@ -198,8 +196,7 @@ async function generateComponents(projectAnswers, selectedTables, projectKey, da
       console.log("Unsupported database.");
       return;
   }
-
-  console.log(`Database configuration for ${database} generated successfully.`);
+  console.log(greenText, `\n \t Database configuration for ${database} generated successfully.`);
 }
 
 function afficherTableau(fields) {
@@ -251,12 +248,11 @@ function afficherTableau(fields) {
 
 
 async function generateMySQLConnectionContent(dataConnect, projectBackDir, projectNameBack) {
-  console.log('hhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhh ',projectBackDir);
   const { host, port, username, password, databaseName } = dataConnect;
   const projectDir = path.resolve(projectBackDir, "db");
   const dbPath = path.join(projectDir, "dbConnection.js");
-  console.log(projectDir);
-  console.log(projectBackDir)
+  // console.log(projectDir);
+  // console.log(projectBackDir)
   // Ensure the directory exists
   try {
     await fs.mkdir(projectDir, { recursive: true });
@@ -289,7 +285,7 @@ module.exports = connection;
   // Write the connection file
   try {
     await fs.writeFile(dbPath, content, "utf8");
-    console.log("MySQL database connection file generated successfully.");
+    console.log(greenText, `\n \t MySQL database connection file generated successfully.`);
   } catch (err) {
     console.error("Failed to create MySQL connection file:", err);
   }

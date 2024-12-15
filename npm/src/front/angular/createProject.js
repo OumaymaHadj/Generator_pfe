@@ -40,7 +40,7 @@ async function updatePackageJsonAngular(projectName, projectsDir) {
 
         await fs.writeFile(packageJsonPath, JSON.stringify(packageJson, null, 2), "utf8");
 
-        console.log("\tpackage.json file updated \u2714.");
+        console.log("\t package.json file updated \u2714.");
     } catch (error) {
         console.error("Error updating package.json:", error);
     }
@@ -65,7 +65,7 @@ async function updateStyles(projectName, projectsDir) {
                 return;
             }
 
-            console.log("\tCSS file updated \u2714.");
+            console.log("\t CSS file updated \u2714.");
         });
     });
 }
@@ -76,7 +76,7 @@ async function updateAppComponentHtml(projectName, projectDir) {
 
     try {
         await fs.writeFile(appFilePath, appContent.trim(), "utf8");
-        console.log("App component has been updated successfully!");
+        console.log("\n \t App component has been updated successfully!");
     } catch (error) {
         console.error("An error occurred while generating main.js:", error);
     }
@@ -102,7 +102,7 @@ async function updateIndexHtml(projectName, projectsDir) {
         });
 
         await fs.writeFile(destIndexFilePath, $dest.html(), 'utf-8');
-        console.log("Successfully updated index.html with new <link> tags.");
+        console.log("\n \t Successfully updated index.html with new <link> tags.");
     } catch (error) {
         console.error("Error updating index.html:", error);
     }
@@ -135,7 +135,7 @@ async function updateAngularJSON(projectName, projectsDir) {
 
         fs.writeFileSync(destIndexFilePath, JSON.stringify(angularConfig, null, 2), 'utf8');
 
-        console.log('angular.json updated successfully.');
+        console.log('\n \t angular.json updated successfully.');
     } catch (error) {
         console.error('Error updating angular.json:', error);
     }

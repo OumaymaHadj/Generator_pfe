@@ -7,6 +7,7 @@ import { exec } from "child_process";
 import { promisify } from "util";
 import createProject from "./front/angular/createProject.js"
 import gatherDatabaseInfo from './databaseInfo.js'
+import { yellowText } from "../public/data-modal.js";
 
 const execAsync = promisify(exec);
 
@@ -72,7 +73,7 @@ export  async function generateProject(answers) {
 
     clearInterval(loadingInterval);
 
-    console.log("Projet créé avec succès.");
+    console.log(yellowText, "\n \t Projet créé avec succès.");
     gatherDatabaseInfo(answers,projectKey);
 
   } catch (error) {

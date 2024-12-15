@@ -3,6 +3,7 @@ import fs from "fs/promises";
 import { exec } from "child_process";
 import { promisify } from "util";
 import os from "os";
+import { greenText, yellowText, purpleText, redText  } from "../public/data-modal.js";
 
 const execAsync = promisify(exec);
 
@@ -49,10 +50,13 @@ export default async function createCrud(projectKey, projectName, selectedTable,
 
     await updateAppJs(appFile, selectedTable);
 
-    console.log(`Files ${routerName}.js and ${controllerName}.js have been created successfully!`);
-    console.log(`The component has been imported and routing added to ${appFile}!`);
-    console.log("CRUD created successfully.");
-    process.exit(0);
+    console.log(greenText, `\n \t Files \x1b[1;32m${routerName}\x1b[0m.js and \x1b[1;32m${controllerName}\x1b[0m.js \x1b[32mhave been created successfully!`);
+    console.log(greenText, `\n \t CRUD of \x1b[1m${selectedTable.name}\x1b[0m \x1b[32mcreated successfully.`);
+    console.log(greenText, `\n \t The component has been imported and routing added to ${appFile}!`);
+
+    console.log(yellowText, `\n \t ------------------------------ \n`);
+
+    //process.exit(0);
 
   } catch (error) {
     console.error("An error occurred:", error.message);
@@ -161,13 +165,13 @@ function generateControllerSql(selectedTable) {
   const { name, fields } = selectedTable;
 
   // Log fields to check the structure
-  console.log('Fields:', fields);
+  // console.log('Fields:', fields);
 
   // Identify the primary key (pk) and check if it's auto-incrementing
   const pkField = fields.find((f) => f.pk);
 
   // Log the identified primary key field
-  console.log('Primary Key Field:', pkField);
+  // console.log('Primary Key Field:', pkField);
 
   if (!pkField) {
     console.error(`No primary key found for table ${name}`);
