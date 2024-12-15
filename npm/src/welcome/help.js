@@ -9,8 +9,8 @@ export default async function help() {
   console.log(purpleText,'The HELP');
   const commands = [
     { name: 'Create a new project', value: 'createProject' },
-    { name: 'Establish database connection', value: 'connectDB' },
-    { name: 'Create Model, Service and Component for a spesific table', value: 'createComp' },
+   // { name: 'Establish database connection', value: 'connectDB' },
+   // { name: 'Create Model, Service and Component for a spesific table', value: 'createComp' },
   ];
 
   try {
