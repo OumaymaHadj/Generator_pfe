@@ -1,7 +1,7 @@
 {
   "type": "module",
   "name": "generator-cli-npm",
-  "version": "1.0.4",
+  "version": "1.0.5",
   "description": "generates UI implementation from data model",
   "main": "index.js",
   "bin": {
