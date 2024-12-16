@@ -182,7 +182,7 @@ export default function CreateProject() {
 
   const downloadProjects = async () => {
 
-    let downloadData = { projectName: projectName, projectKey: projectKey }
+    let downloadData = { projectName: projectName, projectKey: projectKey, front : techFront }
     const encryptedDownloadData = CryptoService.encrypt(downloadData);
 
     try {

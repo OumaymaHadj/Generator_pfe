@@ -42,5 +42,12 @@
   },
   "engines": {
     "node": ">=8 <=21"
+  },
+  "eslintConfig": {
+    "extends": "eslint:recommended",
+    "env": {
+      "browser": true,
+      "es2021": true
+    }
   }
 }

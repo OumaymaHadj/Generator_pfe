@@ -135,7 +135,7 @@ export default function LiveDemo() {
 
     const downloadProjects = async () => {
 
-        let downloadData = { projectName: projectName, projectKey: projectKey }
+        let downloadData = { projectName: projectName, projectKey: projectKey, front : techFront }
         const encryptedDownloadData = CryptoService.encrypt(downloadData);
 
         setShowModal(false)

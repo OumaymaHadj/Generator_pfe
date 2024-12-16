@@ -3,7 +3,7 @@ import path from "path";
 import archiver from "archiver";
 
 
-export async function archiveProject(projectName, projectKey, projectsDir) {
+export async function archiveProject(projectName, projectKey, projectsDir, front) {
     return new Promise((resolve, reject) => {
         console.log("Archiving project:", projectName);
 
@@ -43,7 +43,7 @@ export async function archiveProject(projectName, projectKey, projectsDir) {
                 `${projectName}/node_modules/**`,
                 `${projectName}Back/node_modules/**`
             ],
-            dot: true,
+            dot: front === 'Vue' ? false : true,
         });
 
         archive.finalize();

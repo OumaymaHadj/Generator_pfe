@@ -27,7 +27,7 @@ async function startDocker() {
 async function runDockerCompose() {
   const __filename = fileURLToPath(import.meta.url);
   const __dirname = path.dirname(__filename);
-  const rootDir = path.resolve(__dirname, '../');
+  const rootDir = path.resolve(__dirname, '../../');
   const composeFile = path.resolve(rootDir, 'docker-compose.yml');
   if (!fs.existsSync(composeFile)) {
     return;
@@ -43,7 +43,6 @@ async function runDockerCompose() {
 
 export default async function ensureDockerRunningAndCompose() {
   const isRunning = await isDockerRunning();
-
   if (!isRunning) {
     const started = await startDocker();
     if (started) {

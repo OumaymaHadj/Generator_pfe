@@ -12,7 +12,7 @@ export default async function downloadProject(req, res) {
 
         const decryptedDownloadData = CryptoService.decrypt(encryptedDownloadData);
 
-        const { projectName, projectKey } = decryptedDownloadData;
+        const { projectName, projectKey, front } = decryptedDownloadData;
 
         try {
 
@@ -22,7 +22,7 @@ export default async function downloadProject(req, res) {
                 return res.status(404).send('Project directory not found.');
             }
 
-            const zipPath = await archiveProject(projectName, projectKey, projectsDir);
+            const zipPath = await archiveProject(projectName, projectKey, projectsDir, front);
             console.log("zipPath:", zipPath);
 
             // Check if the zip file was successfully created
