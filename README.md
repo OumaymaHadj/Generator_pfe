@@ -5,4 +5,4 @@ Les projets générés sont préconfigurés avec des modules de routage et des c
 
 ![diagramme-deploiement](https://github.com/user-attachments/assets/e9c453ac-233d-475b-b6d5-e62197b70471)
 
-![generator](https://github.com/user-attachments/assets/90f3bffe-695a-4108-9a9a-ce42bf32cc00)
+![Group 1](https://github.com/user-attachments/assets/bd20ec00-f827-40ad-9fef-d326f2381ce9)
